@@ -14,8 +14,25 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
+const allowedOrigins = [
+  process.env.API_URL,
+  process.env.API_DEV
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow server-to-server & health checks
+      if (!origin) return callback(null, true);
 
-app.use(cors());
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get('/', (req, res) => {
